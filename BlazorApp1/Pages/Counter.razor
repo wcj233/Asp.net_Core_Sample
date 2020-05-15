@@ -1,0 +1,73 @@
+﻿@page "/counter"
+@inject IJSRuntime JSRuntime
+
+
+<h1>Counter</h1>
+
+<p>Current count: @currentCount</p>
+<h1 style="font-size:@currentCount">123</h1>
+
+<input @oninput="OnPasswordChanged"
+       required
+       value="@CurrentValue" @oninput:preventDefault />
+
+<button class="btn btn-primary" @onclick="IncrementCount" id="Mybutton">Click me</button>
+
+<p>
+    Get value via JS interop call:
+    <strong id="val-get-by-interop">@(infoFromJs ?? "No value yet")</strong>
+</p>
+
+Set value via JS interop call:
+<div id="val-set-by-interop" @ref="divElement"></div>
+<input @ref="useName" />
+
+
+@code {
+
+    private ElementReference useName;
+
+    private string infoFromJs;
+    private ElementReference divElement;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && infoFromJs == null)
+        {
+            infoFromJs = await JSRuntime.InvokeAsync<string>(
+                "setElementText", divElement, "Hello from interop call!");
+
+            StateHasChanged();
+        }
+    }
+
+
+    private string CurrentValue { get; set; }
+
+    [Parameter]
+    public string Password { get; set; }
+
+    [Parameter]
+    public EventCallback<string> PasswordChanged { get; set; }
+
+    private Task OnPasswordChanged(ChangeEventArgs e)
+    {
+        Password = e.Value.ToString();
+
+        return PasswordChanged.InvokeAsync(Password);
+    }
+
+
+
+    private int currentCount { get; set; } = 0;
+
+    private async void IncrementCount()
+    {
+        //string aa = await JSRuntime.InvokeAsync<string>("handleTickerChanged",
+        //        "symbol", "price");
+        //var name = await JSRuntime.InvokeAsync<string>(
+        //        "exampleJsFunctions.showPrompt",
+        //        "What's your name?");
+
+    }
+}

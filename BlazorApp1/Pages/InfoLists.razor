@@ -1,0 +1,127 @@
+﻿@page "/infoLists"
+@inject NavigationManager NavigationManager
+@inject BlazorApp1.Data.InfoDataService InfoService
+
+<style type="text/css">
+    .MyDiv {
+        width: 500px;
+    }
+
+    .wrap {
+        display: flex;
+        justify-content: space-between;
+        width: 500px;
+    }
+
+    .right, .middle {
+        height: 100px;
+    }
+
+    .right {
+        width: 120px;
+    }
+
+    .middle {
+        width: 60%;
+        margin: 0 20px;
+    }
+
+    .myline {
+        width: 100%;
+    }
+
+    .MyInput {
+        font-size: 15px;
+        border: none;
+        background: white;
+    }
+    .MyFirstNameTD {
+        width:18%;
+    }
+</style>
+
+
+<div>
+    <h3>InfoLists</h3>
+
+    @*<TableTemplate Items="pets">
+            <ItemTemplate Context="pet">
+                <div class="MyDiv">
+                    <div class="wrap">
+                        <div class="middle">
+                            <p>@pet.PetId</p>
+                            <p>@pet.Name</p>
+                        </div>
+                        <div class="right"><img src="file:///C:/Users/fayw/Pictures/2.jpg" width="50" height="50" /></div>
+
+                    </div>
+                    <hr class="myline" />
+                    <input type="file" @oninput="AddData"/>
+                </div>
+            </ItemTemplate>
+        </TableTemplate>*@
+    <br />
+    <br />
+
+    <button @onclick="AddNewData">Add new information</button>
+
+    <br />
+    <br />
+
+    <TableTemplate Items="InfoService.Pets">
+        <TableHeader>
+            <th>LastName</th>
+            <th>FirstName</th>
+            <th>Date</th>
+            <th>Phone</th>
+            <th></th>
+        </TableHeader>
+        <RowTemplate>
+            <td class="MyFirstNameTD">@context.LastName</td>
+            <td class="MyFirstNameTD">@context.FirstName</td>
+            <td class="MyFirstNameTD">
+                <input class="MyInput" @bind="context.Date" disabled="disabled" @bind:format="yyyy-MM-dd"></input>
+            </td>
+            <td class="MyFirstNameTD">@context.Phone</td>
+            <td class="MyFirstNameTD"><button @onclick="@(e => EditData(e, context))" @ref="EditButtonRef">Edit</button></td>
+        </RowTemplate>
+    </TableTemplate>
+
+
+
+</div>
+
+@code{
+
+    private ElementReference EditButtonRef { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            
+        }
+    }
+
+    private void AddNewData(MouseEventArgs e)
+    {
+        NavigationManager.NavigateTo("/addOrEditInfo/Add");
+    }
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+
+        await base.SetParametersAsync(parameters);
+    }
+
+    private void EditData(MouseEventArgs e, object context)
+    {
+        BlazorApp1.Data.Pet selectPet = context as BlazorApp1.Data.Pet;
+        InfoService.EditPet = selectPet;
+        NavigationManager.NavigateTo("/addOrEditInfo/Edit");
+
+        return ;
+
+    }
+
+}

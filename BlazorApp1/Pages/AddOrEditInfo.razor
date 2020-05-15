@@ -1,0 +1,75 @@
+﻿@page "/addOrEditInfo"
+@page "/addOrEditInfo/{text}"
+@inject IJSRuntime JSRuntime
+@inject BlazorApp1.Data.InfoDataService InfoService
+@inject NavigationManager NavigationManager
+
+<h3>@Text</h3>
+<div>
+    <hr />
+    <p>Last Name</p>
+    <input @ref="LastNameRef" @bind="CurrentPet.LastName"/>
+    <br />
+    <br />
+    <p>First Name</p>
+    <input @ref="FirstNameRef" @bind="CurrentPet.FirstName"/>
+    <br />
+    <br />
+    <p>Date</p>
+    <input type="date" @ref="DateRef" @bind="CurrentPet.Date"/>
+    <br />
+    <br />
+    <p>Mobile Phone</p>
+    <input @ref="PhoneRef" @bind="CurrentPet.Phone"/>
+    @*<img src="C:/Users/fayw/Pictures/2.jpg" width="50" height="50" @onclick="IncrementCount" />*@
+    <br />
+    <br />
+    <button @onclick="SaveAction">Save</button>
+    <button>Cancel</button>
+</div>
+
+
+@code {
+
+    [Parameter]
+    public string Text { get; set; }
+
+    private ElementReference LastNameRef { get; set; }
+    private ElementReference FirstNameRef { get; set; }
+    private ElementReference DateRef { get; set; }
+    private ElementReference PhoneRef { get; set; }
+
+    private BlazorApp1.Data.Pet CurrentPet { get; set; } = new Data.Pet();
+
+    protected override void OnInitialized()
+    {
+        if (Text == "Edit") {
+            CurrentPet = InfoService.EditPet;
+        }
+    }
+
+    private async void SaveAction()
+    {
+        bool aa = await JSRuntime.InvokeAsync<bool>(
+                 "exampleJsFunctions.showPrompt", LastNameRef, FirstNameRef, DateRef, PhoneRef);
+        if (aa == true)
+        {
+            if (Text == "Add")
+            {
+                //current list add model
+                InfoService.Pets.Add(CurrentPet);
+            }
+            else
+            {
+                //edit
+                int index = InfoService.Pets.IndexOf(InfoService.EditPet);
+                InfoService.Pets.RemoveAt(index);
+                InfoService.Pets.Insert(index, CurrentPet);
+            }
+
+            //back
+            await JSRuntime.InvokeVoidAsync("exampleJsFunctions.Back");
+        }
+
+    }
+}
